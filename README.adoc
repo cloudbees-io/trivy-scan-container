@@ -1,0 +1,56 @@
+= CloudBees action: Scan with Trivy
+
+Use this action to scan container images with the Trivy scanner, to identify and fix security vulnerabilities.
+
+== Inputs
+
+[cols="2a,1a,1a,3a",options="header"]
+.Input details
+|===
+
+| Input name
+| Data type
+| Required?
+| Description
+
+| `image-location`
+| String
+| Yes
+| The container image location.
+
+| `image-tag`
+| String
+| Yes
+| The container image tag.
+
+| `server-url`
+| String
+| Yes
+| The Trivy server URL.
+
+|===
+
+== Usage example
+
+In your YAML file, add:
+
+[source,yaml]
+----
+
+      - name: Scan with Trivy
+        uses: cloudbees-io/trivy-scan-container@v1
+        with:
+          image-location: "example.com/local/alpine"
+          image-tag: "latest"
+          server-url: "${{ vars.TRIVY_SERVER_URL }}"
+----
+
+== License
+
+This code is made available under the 
+link:https://opensource.org/license/mit/[MIT license].
+
+== References
+
+* Learn more about link:https://docs.cloudbees.com/docs/cloudbees-saas-platform-actions/latest/[using actions in CloudBees workflows].
+* Learn about link:https://docs.cloudbees.com/docs/cloudbees-saas-platform/latest/[the CloudBees platform].

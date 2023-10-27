@@ -1,0 +1,46 @@
+apiVersion: automation.cloudbees.io/v1alpha1
+kind: action
+name: trivy
+inputs:
+  image-location:
+    required: true
+  image-tag:
+    required: true
+  server-url:
+    default: "http://127.0.0.1:5005"
+    required: false
+runs:
+  using: composite
+  steps:
+    - id: trivy
+      name: trivy
+      uses: docker://registry.saas-dev.beescloud.com/staging/compliance-trivy:main-2b58979840d2737667a0b97dd22a84625db1faff
+      shell: bash
+      env:
+        RUN_ID: ${{ cloudbees.run_id }}
+        JOB_ID: ${{ job.id }}
+        STEP_ID: ${{ step.internal.id }}
+        DNS_URL: ${{ cloudbees.api.url }}
+        JWT_TOKEN: ${{ cloudbees.api.token }} 
+        CH_TRIVY_REMOTE: ${{ inputs.server-url }}
+        BINARY_IMAGE_NAME: "trivy_binary_asset.tar"
+        CONFIG_JSON: '{\"port\":\"5004\",\"metaInfo\":{\"url\":\"NA\",\"username\":\"NA\",\"password\":\"NA\",\"client_secret\":\"NA\",\"toolName\":\"trivy\"},\"orchestratorInfo\":{\"assetType\":\"BINARY\",\"assetIdentifier\":\"${{ inputs.image-location }}\",\"profileIdentifier\":\"${{ inputs.image-tag }}\"},\"metaInformation\":{\"actor\":\"NA\",\"commit_id\":\"NA\",\"tenent_info\":\"NA\",\"scanner_type\":\"Container\"}}'
+      run: |
+        set -x
+        HOST=$(echo $CH_TRIVY_REMOTE | awk -F'[:/]' '{print $4}')
+        PORT=$(echo $CH_TRIVY_REMOTE | awk -F'[:/]' '{print $5}')
+        HOST_PORT="${HOST}:${PORT}"
+        echo "RUN ID: ${{ cloudbees.run_id }}"
+        echo "Job ID: ${{ job.id }}"
+        echo "Step ID: ${{ step.internal.id }}"
+        cd /
+        if [ -f $CLOUDBEES_WORKSPACE/$BINARY_IMAGE_NAME ]; then
+          rm $CLOUDBEES_WORKSPACE/$BINARY_IMAGE_NAME
+        fi
+        crane flatten ${{ inputs.image-location }}:${{ inputs.image-tag }}
+        skopeo copy docker://${{ inputs.image-location }}:${{ inputs.image-tag }} docker-archive:$CLOUDBEES_WORKSPACE/$BINARY_IMAGE_NAME:${{ inputs.image-location }}:${{ inputs.image-tag }}
+        if [ "${{ inputs.server-url }}" == "http://127.0.0.1:5005" ]; then
+          /bin/bash -c "trivy server --listen ${HOST_PORT} & while ! nc -z localhost ${PORT}; do sleep 1; done && ./executables/trivy & while ! nc -z localhost 5004; do sleep 1; done && ./executables/orchestrator -scanConfig \"${CONFIG_JSON}\" execute-analyser && exit"
+        else
+          /bin/bash -c "./executables/trivy & while ! nc -z localhost 5004; do sleep 1; done && ./executables/orchestrator -scanConfig \"${CONFIG_JSON}\" execute-analyser && exit"
+        fi
