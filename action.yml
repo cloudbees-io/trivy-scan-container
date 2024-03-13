@@ -24,7 +24,7 @@ runs:
         JWT_TOKEN: ${{ cloudbees.api.token }} 
         CH_TRIVY_REMOTE: ${{ inputs.server-url }}
         BINARY_IMAGE_NAME: "trivy_binary_asset.tar"
-        CONFIG_JSON: '{\"port\":\"5004\",\"metaInfo\":{\"url\":\"NA\",\"username\":\"NA\",\"password\":\"NA\",\"client_secret\":\"NA\",\"toolName\":\"trivy\"},\"orchestratorInfo\":{\"assetType\":\"BINARY\",\"assetIdentifier\":\"${{ inputs.image-location }}\",\"profileIdentifier\":\"${{ inputs.image-tag }}\"},\"metaInformation\":{\"actor\":\"NA\",\"commit_id\":\"NA\",\"tenent_info\":\"NA\",\"scanner_type\":\"Container\"}}'
+        CONFIG_JSON: '{\"port\":\"5004\",\"metaInfo\":{\"url\":\"NA\",\"username\":\"NA\",\"password\":\"NA\",\"client_secret\":\"NA\",\"toolName\":\"trivy\"},\"orchestratorInfo\":{\"assetType\":\"BINARY\",\"assetIdentifier\":\"${{ inputs.image-location }}\",\"profileIdentifier\":\"${{ inputs.image-tag }}\"},\"metaInformation\":{\"actor\":\"NA\",\"commit_id\":\"NA\",\"branch\":\"${{ cloudbees.scm.branch }}\",\"tenent_info\":\"NA\",\"scanner_type\":\"Container\"}}'
       run: |
         set -x
         HOST=$(echo $CH_TRIVY_REMOTE | awk -F'[:/]' '{print $4}')
