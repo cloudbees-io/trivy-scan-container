@@ -33,12 +33,7 @@ runs:
         echo "RUN ID: ${{ cloudbees.run_id }}"
         echo "Job ID: ${{ job.id }}"
         echo "Step ID: ${{ step.internal.id }}"
-        echo "skopeo --version"
-        skopeo --version
-        cd /etc/containers/
-        ls -ltr
-        # cat policy.json
-        
+
         cd /
         if [ -f $CLOUDBEES_WORKSPACE/$BINARY_IMAGE_NAME ]; then
           rm $CLOUDBEES_WORKSPACE/$BINARY_IMAGE_NAME
