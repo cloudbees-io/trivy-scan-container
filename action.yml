@@ -37,7 +37,7 @@ runs:
         skopeo --version
         cd /etc/containers/
         ls -ltr
-        cat policy.json
+        # cat policy.json
         
         cd /
         if [ -f $CLOUDBEES_WORKSPACE/$BINARY_IMAGE_NAME ]; then
