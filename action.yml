@@ -33,7 +33,8 @@ runs:
         echo "RUN ID: ${{ cloudbees.run_id }}"
         echo "Job ID: ${{ job.id }}"
         echo "Step ID: ${{ step.internal.id }}"
-        
+        echo "skopeo --version"
+        skopeo --version
         cd /etc/containers/
         ls -ltr
         cat policy.json
