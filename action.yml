@@ -43,7 +43,7 @@ runs:
         if [ -f $CLOUDBEES_WORKSPACE/$BINARY_IMAGE_NAME ]; then
           rm $CLOUDBEES_WORKSPACE/$BINARY_IMAGE_NAME
         fi
-        skopeo copy docker://${{ inputs.image-location }}:${{ inputs.image-tag }} docker-archive:$CLOUDBEES_WORKSPACE/$BINARY_IMAGE_NAME:${{ inputs.image-location }}:${{ inputs.image-tag }} --dest-oci-accept-uncompressed-layers
+        skopeo copy --insecure-policy docker://${{ inputs.image-location }}:${{ inputs.image-tag }} docker-archive:$CLOUDBEES_WORKSPACE/$BINARY_IMAGE_NAME:${{ inputs.image-location }}:${{ inputs.image-tag }} --dest-oci-accept-uncompressed-layers
         if [ "${{ inputs.server-url }}" == "http://127.0.0.1:5005" ]; then
           /bin/bash -c "trivy server --listen ${HOST_PORT} & while ! nc -z localhost ${PORT}; do sleep 1; done && ./executables/trivy & while ! nc -z localhost 5004; do sleep 1; done && ./executables/orchestrator -scanConfig \"${CONFIG_JSON}\" execute-analyser && exit"
         else
