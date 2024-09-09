@@ -12,9 +12,24 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: skopeo
+      uses: docker://public.ecr.aws/logistics/quay.io/skopeo/stable:v1.10
+      shell: bash
+      env:
+        BINARY_IMAGE_NAME: "trivy_binary_asset.tar"
+      run: |
+        set -x
+        skopeo -v
+        cd /
+        if [ -f $CLOUDBEES_WORKSPACE/$BINARY_IMAGE_NAME ]; then
+              rm $CLOUDBEES_WORKSPACE/$BINARY_IMAGE_NAME
+        fi
+        skopeo copy --insecure-policy docker://${{ inputs.image-location }}:${{ inputs.image-tag }} docker-archive:$CLOUDBEES_WORKSPACE/$BINARY_IMAGE_NAME:${{ inputs.image-location }}:${{ inputs.image-tag }} --dest-oci-accept-uncompressed-layers
+        ls -ltr $CLOUDBEES_WORKSPACE
+      
     - id: trivy
       name: trivy
-      uses: docker://public.ecr.aws/l7o7z1g8/actions/trivy-container-actions:main-336c4ad44f65583fa24d6301198342628c4a5a88
+      uses: docker://public.ecr.aws/l7o7z1g8/actions/trivy-container-actions:main-d33f6050546a2c350a29e397cfc391ff6155cbc2
       shell: bash
       env:
         RUN_ID: ${{ cloudbees.run_id }}
@@ -35,10 +50,6 @@ runs:
         echo "Step ID: ${{ step.internal.id }}"
 
         cd /
-        if [ -f $CLOUDBEES_WORKSPACE/$BINARY_IMAGE_NAME ]; then
-          rm $CLOUDBEES_WORKSPACE/$BINARY_IMAGE_NAME
-        fi
-        skopeo copy --insecure-policy docker://${{ inputs.image-location }}:${{ inputs.image-tag }} docker-archive:$CLOUDBEES_WORKSPACE/$BINARY_IMAGE_NAME:${{ inputs.image-location }}:${{ inputs.image-tag }} --dest-oci-accept-uncompressed-layers
         if [ "${{ inputs.server-url }}" == "http://127.0.0.1:5005" ]; then
           /bin/bash -c "trivy server --listen ${HOST_PORT} & while ! nc -z localhost ${PORT}; do sleep 1; done && ./executables/trivy & while ! nc -z localhost 5004; do sleep 1; done && ./executables/orchestrator -scanConfig \"${CONFIG_JSON}\" execute-analyser && exit"
         else
