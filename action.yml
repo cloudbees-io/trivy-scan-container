@@ -12,21 +12,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: skopeo
-      uses: docker://public.ecr.aws/logistics/quay.io/skopeo/stable:v1.10
-      shell: bash
-      env:
-        BINARY_IMAGE_NAME: "trivy_binary_asset.tar"
-      run: |
-        set -x
-        skopeo -v
-        cd /
-        if [ -f $CLOUDBEES_WORKSPACE/$BINARY_IMAGE_NAME ]; then
-              rm $CLOUDBEES_WORKSPACE/$BINARY_IMAGE_NAME
-        fi
-        skopeo copy --insecure-policy docker://${{ inputs.image-location }}:${{ inputs.image-tag }} docker-archive:$CLOUDBEES_WORKSPACE/$BINARY_IMAGE_NAME:${{ inputs.image-location }}:${{ inputs.image-tag }} --dest-oci-accept-uncompressed-layers
-        ls -ltr $CLOUDBEES_WORKSPACE
-      
     - id: trivy
       name: trivy
       uses: docker://public.ecr.aws/l7o7z1g8/actions/trivy-container-actions:main-63176eb0eb84e361dc99fea159a9aa973a805813 
@@ -38,7 +23,7 @@ runs:
         DNS_URL: ${{ cloudbees.api.url }}
         JWT_TOKEN: ${{ cloudbees.api.token }} 
         CH_TRIVY_REMOTE: ${{ inputs.server-url }}
-        BINARY_IMAGE_NAME: "trivy_binary_asset.tar"
+        BINARY_IMAGE_NAME: "container-image.tar"
         CONFIG_JSON: '{\"port\":\"5004\",\"metaInfo\":{\"url\":\"NA\",\"username\":\"NA\",\"password\":\"NA\",\"client_secret\":\"NA\",\"toolName\":\"trivy\"},\"orchestratorInfo\":{\"assetType\":\"BINARY\",\"assetIdentifier\":\"${{ inputs.image-location }}\",\"profileIdentifier\":\"${{ inputs.image-tag }}\"},\"metaInformation\":{\"actor\":\"NA\",\"commit_id\":\"NA\",\"branch\":\"${{ cloudbees.scm.branch }}\",\"tenent_info\":\"NA\",\"scanner_type\":\"Container\"}}'
       run: |
         set -x
