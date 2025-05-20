@@ -29,7 +29,7 @@ runs:
       
     - id: trivy
       name: trivy
-      uses: docker://public.ecr.aws/l7o7z1g8/actions/trivy-container-actions:main-4e4134abe0dd98dd78e3ca68ab70a4377b686459 
+      uses: docker://public.ecr.aws/l7o7z1g8/actions/trivy-container-actions:main-3d52e10cae39a008aaa8dcaa96a6509702749c70 
       shell: bash
       env:
         RUN_ID: ${{ cloudbees.run_id }}
