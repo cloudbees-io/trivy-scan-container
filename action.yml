@@ -13,7 +13,7 @@ runs:
   using: composite
   steps:
     - name: skopeo
-      uses: docker://public.ecr.aws/logistics/quay.io/skopeo/stable:v1.10
+      uses: docker://public.ecr.aws/logistics/quay.io/skopeo/stable:main-d4cf33cb31c7b494588e7982831f4071b0fb3707
       shell: bash
       env:
         BINARY_IMAGE_NAME: "trivy_binary_asset.tar"
